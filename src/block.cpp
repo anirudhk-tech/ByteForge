@@ -51,4 +51,4 @@ std::size_t Block::used() const {
   return off_;
 }
 
-}
+} // namespace byteforge
