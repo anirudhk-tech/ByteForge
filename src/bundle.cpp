@@ -2,6 +2,8 @@
 
 #include <cstddef>
 #include <new>
+#include <algorithm>
+#include <utility>
 
 namespace byteforge {
   
@@ -11,7 +13,7 @@ Bundle::Bundle(std::size_t initial_block_size)
   blocks_.push_back(BlockStorage(initial_block_size));
 }
 
-void* Bundle::store(std::size_t n, std::size_t alignment) {
+void* Bundle::allocate_raw(std::size_t n, std::size_t alignment) {
   BlockStorage& last_storage = blocks_.back();
 
   void* result = last_storage.block.allocate(n, alignment);
@@ -41,7 +43,7 @@ void Bundle::reset() {
   }
 }
 
-int Bundle::used() {
+std::size_t Bundle::used() {
   std::size_t total = 0;
   for (auto& storage : blocks_) {
     total += storage.block.used();
@@ -49,7 +51,7 @@ int Bundle::used() {
   return total;
 }
 
-int Bundle::capacity() {
+std::size_t Bundle::capacity() {
   std::size_t total = 0;
   for (auto& storage : blocks_) {
     total += storage.block.capacity();

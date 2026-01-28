@@ -1,5 +1,6 @@
 #include "byteforge/block.hpp"
 
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -12,11 +13,21 @@ class Bundle {
 
     Bundle(const Bundle&) = delete;
     Bundle& operator=(const Bundle&) = delete;
+    
+    template <typename T, typename... Args> // template must be in .hpp
+    T* store(Args&&... args) { // compiler needs to generate function itself, it can't just link assuming function already exists (it generates -> links rather than just link)
+      void* result = allocate_raw(sizeof(T), alignof(T));
+
+      if (result == nullptr) {
+        return nullptr;
+      }
+
+      return new (result) T(std::forward<Args>(args)...);
+    }
  
-    void* store(std::size_t n, std::size_t alignment);
     void reset();
-    int used();
-    int capacity();
+    std::size_t used();
+    std::size_t capacity();
 
   private:
     struct BlockStorage {
@@ -28,7 +39,9 @@ class Bundle {
           block(buffer.get(), block_size)
         {}
     };
-    
+   
+    void* allocate_raw (std::size_t n, std::size_t alignment);
+
     std::vector<BlockStorage> blocks_;
     std::size_t block_size_;
     std::size_t cap_;
