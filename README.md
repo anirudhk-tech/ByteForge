@@ -86,19 +86,6 @@ Debug builds will fire asserts if `alignment` is zero or not a power of two.
 
 **Key invariant:** Pointers returned from `store<T>()` are valid until the next call to `reset()` or destruction of the `Bundle`.
 
-## Benchmark
-
-A simple microbenchmark allocating 1,000,000 small objects (`sizeof(int)`) in a tight loop:
-
-| Allocator | Time (Apple M2, `-O3`) |
-|-----------|------------------------|
-| `new` / `delete` | ~18 ms |
-| `Bundle::store<int>` | ~2 ms |
-
-Logos-Arena is roughly **8–9× faster** in this synthetic test. This measures raw allocation throughput only—real workloads vary. The arena wins because it avoids per-object bookkeeping and syscall overhead on every allocation.
-
-**Caveat:** This is a microbenchmark. Arena allocators are not a drop-in replacement for general-purpose `new`; they require batch-lifetime semantics.
-
 ## Limitations
 
 - **No individual deallocation.** You cannot free a single object; only `reset()` the entire arena.
