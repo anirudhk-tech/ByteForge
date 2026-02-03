@@ -2,8 +2,8 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <memory>
 #include <vector>
+#include <sys/mman.h>
 
 namespace byteforge {
 
@@ -31,15 +31,68 @@ class Bundle {
 
   private:
     struct BlockStorage {
-      std::unique_ptr<std::uint8_t[]> buffer;
+      std::uint8_t* mem;
+      std::size_t cap;
       Block block;
 
-      explicit BlockStorage(std::size_t block_size)
-        : buffer(std::make_unique<std::uint8_t[]>(block_size)),
-          block(buffer.get(), block_size)
-        {}
+      static std::uint8_t* map_or_throw(std::size_t cap_bytes) {
+        void* p = ::mmap(
+          nullptr,
+          cap_bytes,
+          PROT_READ | PROT_WRITE,
+          MAP_PRIVATE | MAP_ANONYMOUS,
+          -1,
+          0
+        );
+
+        if (p == MAP_FAILED) {
+          throw std::bad_alloc();
+        }
+
+        return static_cast<std::uint8_t*>(p);
+      }
+  
+     explicit BlockStorage(std::size_t cap_bytes)
+      : mem(map_or_throw(cap_bytes)),
+        cap(cap_bytes),
+        block(mem, cap)
+      {}
+    
+      ~BlockStorage() noexcept {
+        if (mem) {
+          ::munmap(mem, cap);  
+          }    
+        }
+      
+      BlockStorage(const BlockStorage&) = delete;
+
+      BlockStorage(BlockStorage&& other) noexcept 
+      : mem(other.mem),
+        cap(other.cap),
+        block(std::move(other.block))
+      {
+        other.mem = nullptr;
+        other.cap = 0;
+      }
+
+      BlockStorage& operator=(BlockStorage&& other) noexcept {
+        if (this == &other) return *this;
+        
+        if (mem) {
+          ::munmap(mem, cap);
+        }
+
+        mem = other.mem;
+        cap = other.cap;
+        block = std::move(other.block);
+
+        other.mem = nullptr;
+        other.cap = 0;
+
+        return *this;
+      }
     };
-   
+
     void* allocate_raw (std::size_t n, std::size_t alignment);
 
     std::vector<BlockStorage> blocks_;
