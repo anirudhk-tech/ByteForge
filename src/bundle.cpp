@@ -3,7 +3,6 @@
 #include <cstddef>
 #include <new>
 #include <algorithm>
-#include <utility>
 
 namespace byteforge {
   
