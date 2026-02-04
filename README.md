@@ -252,4 +252,4 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ---
 
-**ByteForge** — Allocate fast. Reset faster.
+**ByteForge** - High-performance bump-pointer arena allocator for C++20.
