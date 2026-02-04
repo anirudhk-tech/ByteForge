@@ -57,7 +57,7 @@ target_link_libraries(your_target PRIVATE byteforge)
 git clone https://github.com/youruser/byteforge.git
 cd byteforge
 mkdir build && cd build
-cmake ..
+cmake -DCMAKE_BUILD_TYPE=Release ..
 cmake --build .
 ```
 
@@ -154,10 +154,12 @@ ByteForge significantly outperforms `new`/`delete` for batch allocation workload
 
 | Allocator       | Time (ms) | Speedup |
 |-----------------|-----------|---------|
-| `new`/`delete`  | ~350      | 1.0x    |
-| ByteForge arena | ~15       | ~23x    |
+| `new`/`delete`  | ~21       | 1.0x    |
+| ByteForge arena | ~5        | ~4x     |
 
-*Results vary by platform and compiler. Run `./benchmark` to measure on your system.*
+*Results from Apple M-series, Release build with LTO. Run `./benchmark` to measure on your system.*
+
+> **Important:** Build with Release mode (`-DCMAKE_BUILD_TYPE=Release`). Debug builds will be *slower* than `new`/`delete` due to function call overhead and asserts.
 
 ### Why it's fast
 
@@ -229,11 +231,11 @@ Blocks are allocated via `mmap(2)` with `MAP_PRIVATE | MAP_ANONYMOUS`. This bypa
 - CMake 3.16+
 - POSIX-compliant OS
 
-## Building Examples
+## Building
 
 ```bash
 mkdir build && cd build
-cmake ..
+cmake -DCMAKE_BUILD_TYPE=Release ..
 cmake --build .
 
 # Run examples
@@ -241,6 +243,8 @@ cmake --build .
 ./bundle     # Bundle usage demo
 ./benchmark  # Performance comparison
 ```
+
+For benchmarking, always use Release mode. The CMake configuration defaults to Release and enables LTO (Link-Time Optimization) to allow inlining across translation units.
 
 ## License
 
