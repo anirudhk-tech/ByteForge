@@ -1,4 +1,4 @@
-# ByteForge
+# Byte
 
 A high-performance bump-pointer arena allocator for C++20.
 
@@ -17,7 +17,7 @@ A high-performance bump-pointer arena allocator for C++20.
 
 ## Overview
 
-ByteForge is a linear (bump-pointer) arena allocator that provides fast, contiguous memory allocation with O(1) bulk deallocation. Memory is allocated by advancing a pointer through fixed-size blocks; individual objects cannot be freed. When a phase of work completes, a single `reset()` call reclaims all memory instantly.
+Byte is a linear (bump-pointer) arena allocator that provides fast, contiguous memory allocation with O(1) bulk deallocation. Memory is allocated by advancing a pointer through fixed-size blocks; individual objects cannot be freed. When a phase of work completes, a single `reset()` call reclaims all memory instantly.
 
 This allocation strategy is ideal for:
 
@@ -42,34 +42,34 @@ This allocation strategy is ideal for:
 ```cmake
 include(FetchContent)
 FetchContent_Declare(
-  byteforge
-  GIT_REPOSITORY https://github.com/youruser/byteforge.git
+  Byte
+  GIT_REPOSITORY https://github.com/youruser/Byte.git
   GIT_TAG        main
 )
-FetchContent_MakeAvailable(byteforge)
+FetchContent_MakeAvailable(Byte)
 
-target_link_libraries(your_target PRIVATE byteforge)
+target_link_libraries(your_target PRIVATE Byte)
 ```
 
 ### Manual
 
 ```bash
-git clone https://github.com/youruser/byteforge.git
-cd byteforge
+git clone https://github.com/youruser/Byte.git
+cd Byte
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
 cmake --build .
 ```
 
-Link against the `byteforge` library and add `include/` to your include path.
+Link against the `Byte` library and add `include/` to your include path.
 
 ## Quick Start
 
 ```cpp
-#include "byteforge/bundle.hpp"
+#include "Byte/bundle.hpp"
 
 int main() {
-    byteforge::Bundle arena(4096);  // 4 KB initial block
+    Byte::Bundle arena(4096);  // 4 KB initial block
 
     // Allocate and construct objects
     int* x = arena.store<int>(42);
@@ -85,7 +85,7 @@ int main() {
 
 ## API Reference
 
-### `byteforge::Bundle`
+### `Byte::Bundle`
 
 The primary user-facing arena allocator.
 
@@ -132,7 +132,7 @@ Returns total bytes reserved across all blocks.
 
 ---
 
-### `byteforge::Block`
+### `Byte::Block`
 
 Low-level building block. Most users should prefer `Bundle`.
 
@@ -150,12 +150,12 @@ std::size_t used() const;
 
 ## Performance
 
-ByteForge significantly outperforms `new`/`delete` for batch allocation workloads. The included benchmark (`examples/benchmark.cpp`) allocates 1,000,000 objects across 50 frames:
+Byte significantly outperforms `new`/`delete` for batch allocation workloads. The included benchmark (`examples/benchmark.cpp`) allocates 1,000,000 objects across 50 frames:
 
 | Allocator       | Time (ms) | Speedup |
 |-----------------|-----------|---------|
 | `new`/`delete`  | ~21       | 1.0x    |
-| ByteForge arena | ~5        | ~4x     |
+| Byte arena | ~5        | ~4x     |
 
 *Results from Apple M-series, Release build with LTO. Run `./benchmark` to measure on your system.*
 
@@ -211,7 +211,7 @@ Blocks are allocated via `mmap(2)` with `MAP_PRIVATE | MAP_ANONYMOUS`. This bypa
 | Not thread-safe | Concurrent `store()` / `reset()` requires external synchronization. |
 | POSIX only | Uses `mmap(2)`. Windows support would require `VirtualAlloc`. |
 
-### When NOT to use ByteForge
+### When NOT to use Byte
 
 - Objects have varying lifetimes requiring individual deallocation
 - You need a general-purpose allocator
@@ -252,4 +252,4 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ---
 
-**ByteForge** - High-performance bump-pointer arena allocator for C++20.
+**Byte** - High-performance bump-pointer arena allocator for C++20.
